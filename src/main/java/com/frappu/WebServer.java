@@ -7,6 +7,7 @@ import com.frappu.config.injection.module.JsonMapperModule;
 import com.frappu.config.injection.module.RepositoryModule;
 import com.frappu.config.injection.module.SessionFactoryModule;
 import com.frappu.controller.PingController;
+import com.frappu.controller.UserController;
 import com.frappu.exception.ApiException;
 import com.frappu.util.ScopeUtils;
 import com.google.inject.Guice;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.path;
+import static io.javalin.apibuilder.ApiBuilder.post;
 
 @Slf4j
 public class WebServer {
@@ -43,6 +45,7 @@ public class WebServer {
 
     private void configureRoutes() {
         var pingController = injector.getInstance(PingController.class);
+        var userController = injector.getInstance(UserController.class);
 
         app.routes(() -> {
             path("/ping", () -> {
@@ -50,7 +53,10 @@ public class WebServer {
             });
 
             path("/api", () -> {
-
+                path("/users", () -> {
+                    get("/{user_id}", userController::getUser);
+                    post(userController::createUser);
+                });
             });
         });
     }

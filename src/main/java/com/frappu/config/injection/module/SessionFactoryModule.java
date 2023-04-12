@@ -36,13 +36,21 @@ public class SessionFactoryModule extends AbstractModule {
                 .applySetting("hibernate.format_sql", "true")
                 .applySetting("hibernate.current_session_context_class", "thread")
                 .applySetting("hibernate.hbm2ddl.auto", "create-drop")
+                // Connection pool config
+                .applySetting("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider")
+                .applySetting("hibernate.hikari.connectionTimeout", "10000")
+                .applySetting("hibernate.hikari.minimumIdle", "20")
+                .applySetting("hibernate.hikari.maximumPoolSize", "300")
+                .applySetting("hibernate.hikari.idleTimeout", "200000")
                 .build();
 
         var metadataSources = new MetadataSources(standardServerRegistry);
 
-        var reflections = new Reflections("model");
-        reflections.getTypesAnnotatedWith(Entity.class)
-                .forEach(metadataSources::addAnnotatedClass);
+        var entities = new Reflections("com.frappu.model").getTypesAnnotatedWith(Entity.class);
+
+        log.info(String.format("Found entities: %s", entities.stream().map(Class::getSimpleName).toList()));
+
+        entities.forEach(metadataSources::addAnnotatedClass);
 
         var metadata = metadataSources.buildMetadata();
 
