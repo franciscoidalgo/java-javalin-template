@@ -44,6 +44,12 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.hibernate.orm:hibernate-hikaricp:6.1.7.Final")
 
+    // Swagger
+    annotationProcessor("io.javalin.community.openapi:openapi-annotation-processor:5.4.2")
+    implementation("io.javalin.community.openapi:javalin-openapi-plugin:5.4.2")
+    implementation("io.javalin.community.openapi:javalin-swagger-plugin:5.4.2")
+
+    // Utils
     implementation("org.reflections:reflections:0.10.2")
 
     testImplementation("org.mockito:mockito-core:5.2.0")

@@ -1,6 +1,7 @@
 package com.frappu;
 
 import com.frappu.config.ExceptionHandler;
+import com.frappu.config.OpenApiConfig;
 import com.frappu.config.ScopesEnum;
 import com.frappu.config.injection.module.ConfigurationModule;
 import com.frappu.config.injection.module.JsonMapperModule;
@@ -14,6 +15,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.javalin.Javalin;
 import io.javalin.json.JsonMapper;
+import io.javalin.openapi.plugin.OpenApiPlugin;
+import io.javalin.openapi.plugin.swagger.SwaggerConfiguration;
+import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
 import lombok.extern.slf4j.Slf4j;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
@@ -30,8 +34,11 @@ public class WebServer {
             new SessionFactoryModule()
     );
 
-    private final Javalin app = Javalin.create(config ->
-            config.jsonMapper(injector.getInstance(JsonMapper.class))
+    private final Javalin app = Javalin.create(config -> {
+                config.jsonMapper(injector.getInstance(JsonMapper.class));
+                config.plugins.register(new OpenApiPlugin(OpenApiConfig.get()));
+                config.plugins.register(new SwaggerPlugin((new SwaggerConfiguration())));
+            }
     );
 
     private final ScopesEnum scope = ScopeUtils.getScope();
@@ -52,7 +59,7 @@ public class WebServer {
                 get(pingController::ping);
             });
 
-            path("/api", () -> {
+            path("/v1", () -> {
                 path("/users", () -> {
                     get("/{user_id}", userController::getUser);
                     post(userController::createUser);
